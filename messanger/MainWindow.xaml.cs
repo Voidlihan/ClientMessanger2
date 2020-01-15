@@ -1,4 +1,5 @@
-﻿using System;
+﻿using Newtonsoft.Json;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Net;
@@ -42,8 +43,8 @@ namespace messanger
                 var port = 3231;
                 var endPoint = new IPEndPoint(localIp, port);
                 await socket.ConnectAsync(endPoint);
-                var buffer = Encoding.UTF8.GetBytes(text);
-                socket.Send(buffer);
+                var buf = Encoding.UTF8.GetBytes(text);
+                socket.Send(buf);
                 socket.Shutdown(SocketShutdown.Both);
             }
         }
@@ -60,13 +61,14 @@ namespace messanger
                 socket.Listen(5);
                 while (true)
                 {
+                    MESSAGES = JsonConvert.DeserializeObject<List<Message>>(textBoxMessage.Text);
                     var incomnigSocket = await socket.AcceptAsync();
                     while (incomnigSocket.Available > 0)
                     {
-                        var buffer = new byte[incomnigSocket.Available];
-                        incomnigSocket.Receive(buffer);
+                        var buf = new byte[incomnigSocket.Available];
+                        incomnigSocket.Receive(buf);
 
-                        string sendMessage = System.Text.Encoding.UTF8.GetString(buffer);
+                        string sendMessage = System.Text.Encoding.UTF8.GetString(buf);
                         set.Add(
                             new Message 
                             { 
